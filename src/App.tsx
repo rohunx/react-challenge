@@ -32,7 +32,7 @@ const schedule = {
 };
 
 const App = () => (
-  <div>
+  <div className="container mx-auto p-4">
     <Banner title={schedule.title} />
     <CourseList courses={schedule.courses} />
   </div>
