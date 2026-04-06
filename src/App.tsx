@@ -1,8 +1,11 @@
-export default function App() {
-  return (
-    <div>
-      <h1>Vite + React + TypeScript</h1>
-      <p>Your app is working 🚀</p>
-    </div>
-  );
-}
+const schedule = {
+  title: "CS Courses for 2018-2019",
+};
+
+const App = () => (
+  <div>
+    <h1>{schedule.title}</h1>
+  </div>
+);
+
+export default App;
