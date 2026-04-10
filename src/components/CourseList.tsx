@@ -1,11 +1,18 @@
-import type { Courses } from '../types/course';
+import type { Course, Courses } from '../types/course';
 
 interface CourseListProps {
   courses: Courses;
   selectedTerm: string;
+  selected: Course[];
+  toggleSelected: (course: Course) => void;
 }
 
-export const CourseList = ({ courses, selectedTerm }: CourseListProps) => {
+export const CourseList = ({
+  courses,
+  selectedTerm,
+  selected,
+  toggleSelected,
+}: CourseListProps) => {
   const filteredCourses = Object.entries(courses).filter(
     ([, course]) => course.term === selectedTerm
   );
@@ -15,7 +22,12 @@ export const CourseList = ({ courses, selectedTerm }: CourseListProps) => {
       {filteredCourses.map(([id, course]) => (
         <div
           key={id}
-          className="border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col justify-between min-h-[160px] bg-white"
+          onClick={() => toggleSelected(course)}
+          className={`border rounded-xl p-4 shadow-sm flex flex-col justify-between min-h-[160px] cursor-pointer transition-colors ${
+            selected.includes(course)
+              ? 'bg-blue-100 border-blue-300'
+              : 'bg-white border-gray-200'
+          }`}
         >
           <div>
             <h2 className="text-sm font-bold text-gray-900 leading-snug">
