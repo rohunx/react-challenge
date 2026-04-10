@@ -6,7 +6,7 @@ interface TermSelectorProps {
 }
 
 export const TermSelector = ({ selectedTerm, onTermChange }: TermSelectorProps) => (
-  <div className="flex gap-2 mb-6 justify-center">
+  <div className="flex gap-2">
     {TERMS.map((term) => (
       <button
         key={term}
