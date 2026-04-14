@@ -21,7 +21,7 @@ export const TermPage = () => {
 
     return (
         <div className="container mx-auto p-4">
-            <Banner title="CS Course Scheduler"/>
+            <Banner title="CS Courses for 2018-2019"/>
             <div className="flex items-center justify-between mb-6">
                 <TermSelector selectedTerm={selectedTerm} onTermChange={setSelectedTerm}/>
                 <button
