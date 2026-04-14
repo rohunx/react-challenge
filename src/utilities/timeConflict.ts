@@ -5,14 +5,6 @@ interface TimeRange {
   end: number;
 }
 
-const DAYS_ORDER: Record<string, number> = {
-  M: 0,
-  T: 1,
-  W: 2,
-  Th: 3,
-  F: 4,
-};
-
 const parseTime = (timeStr: string): number => {
   const [hours, minutes] = timeStr.split(':').map(Number);
   return hours * 60 + minutes;
