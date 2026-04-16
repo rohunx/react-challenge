@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import type { Course } from '../types/course';
+import type { CourseFormData, CourseValidationError } from '../types/courseValidation';
+import { validateCourse } from '../utilities/courseValidator';
 
 interface EditCourseProps {
   course: Course;
@@ -6,6 +9,38 @@ interface EditCourseProps {
 }
 
 export const EditCourse = ({ course, onCancel }: EditCourseProps) => {
+  const [formData, setFormData] = useState<CourseFormData>({
+    title: course.title,
+    term: course.term,
+    number: course.number,
+    meets: course.meets,
+  });
+
+  const [errors, setErrors] = useState<CourseValidationError>({});
+
+  const handleChange = (field: keyof CourseFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleBlur = (field: keyof CourseFormData) => {
+    const newErrors = validateCourse(formData);
+    setErrors((prev) => ({
+      ...prev,
+      [field]: newErrors[field],
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newErrors = validateCourse(formData);
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      // TODO: Submit form data
+      console.log('Form valid, submitting:', formData);
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <button
@@ -18,10 +53,10 @@ export const EditCourse = ({ course, onCancel }: EditCourseProps) => {
 
       <div className="max-w-2xl">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">
-          Edit CS {course.number}
+          Edit CS {formData.number}
         </h1>
 
-        <form onSubmit={(e) => e.preventDefault()} className="bg-white rounded-lg shadow p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
           <div>
             <label htmlFor="title" className="block text-sm font-semibold text-gray-900 mb-2">
               Title
@@ -29,9 +64,53 @@ export const EditCourse = ({ course, onCancel }: EditCourseProps) => {
             <input
               id="title"
               type="text"
-              defaultValue={course.title}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+              value={formData.title}
+              onChange={(e) => handleChange('title', e.target.value)}
+              onBlur={() => handleBlur('title')}
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                errors.title ? 'border-red-500 focus:ring-red-600' : 'border-gray-300 focus:ring-blue-600'
+              }`}
             />
+            {errors.title && <p className="text-red-600 text-sm mt-1">{errors.title}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="term" className="block text-sm font-semibold text-gray-900 mb-2">
+              Term
+            </label>
+            <select
+              id="term"
+              value={formData.term}
+              onChange={(e) => handleChange('term', e.target.value)}
+              onBlur={() => handleBlur('term')}
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                errors.term ? 'border-red-500 focus:ring-red-600' : 'border-gray-300 focus:ring-blue-600'
+              }`}
+            >
+              <option value="">Select a term</option>
+              <option value="Fall">Fall</option>
+              <option value="Winter">Winter</option>
+              <option value="Spring">Spring</option>
+              <option value="Summer">Summer</option>
+            </select>
+            {errors.term && <p className="text-red-600 text-sm mt-1">{errors.term}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="number" className="block text-sm font-semibold text-gray-900 mb-2">
+              Course Number
+            </label>
+            <input
+              id="number"
+              type="text"
+              value={formData.number}
+              onChange={(e) => handleChange('number', e.target.value)}
+              onBlur={() => handleBlur('number')}
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                errors.number ? 'border-red-500 focus:ring-red-600' : 'border-gray-300 focus:ring-blue-600'
+              }`}
+            />
+            {errors.number && <p className="text-red-600 text-sm mt-1">{errors.number}</p>}
           </div>
 
           <div>
@@ -41,9 +120,15 @@ export const EditCourse = ({ course, onCancel }: EditCourseProps) => {
             <input
               id="meets"
               type="text"
-              defaultValue={course.meets}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+              value={formData.meets}
+              onChange={(e) => handleChange('meets', e.target.value)}
+              onBlur={() => handleBlur('meets')}
+              placeholder="e.g., MWF 12:00-13:20"
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+                errors.meets ? 'border-red-500 focus:ring-red-600' : 'border-gray-300 focus:ring-blue-600'
+              }`}
             />
+            {errors.meets && <p className="text-red-600 text-sm mt-1">{errors.meets}</p>}
           </div>
 
           <div className="flex gap-4 pt-4">
@@ -53,6 +138,12 @@ export const EditCourse = ({ course, onCancel }: EditCourseProps) => {
               className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold py-2 px-4 rounded-lg transition-colors"
             >
               Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+            >
+              Save Changes
             </button>
           </div>
         </form>
