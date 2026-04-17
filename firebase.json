@@ -15,5 +15,11 @@
   },
   "auth": {
     "providers": {}
+  },
+  "firestore": {
+    "database": "(default)",
+    "location": "me-central1",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   }
 }
