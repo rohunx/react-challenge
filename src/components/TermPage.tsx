@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Banner } from './Banner';
+import type { User } from 'firebase/auth';
+import { AuthBanner } from './AuthBanner'; // Changed from Banner
 import { CourseList } from './CourseList';
 import { CoursePlan } from './CoursePlan';
 import { EditCourse } from './EditCourse';
@@ -7,12 +8,16 @@ import { TermSelector } from './TermSelector';
 import { useCourses } from '../hooks/useCourses';
 import type { Course } from '../types/course';
 
-export const TermPage = () => {
+interface TermPageProps {
+  user: User | null;
+}
+
+export const TermPage = ({ user }: TermPageProps) => {
   const [selectedTerm, setSelectedTerm] = useState('Fall');
   const [selected, setSelected] = useState<Course[]>([]);
   const [isCoursePlanOpen, setIsCoursePlanOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
-  const { courses, loading, error } = useCourses();
+  const { courses, loading, error, refetch } = useCourses();
 
   const toggleSelected = (item: Course) =>
     setSelected(
@@ -21,13 +26,24 @@ export const TermPage = () => {
         : [...selected, item]
     );
 
+  const handleSaveSuccess = async () => {
+    await refetch();
+    setEditingCourse(null);
+  };
+
   if (editingCourse) {
-    return <EditCourse course={editingCourse} onCancel={() => setEditingCourse(null)} />;
+    return (
+      <EditCourse
+        course={editingCourse}
+        onCancel={() => setEditingCourse(null)}
+        onSaveSuccess={handleSaveSuccess}
+      />
+    );
   }
 
   return (
     <div className="container mx-auto p-4">
-      <Banner title="CS Courses for 2018-2019" />
+      <AuthBanner user={user} title="CS Courses for 2018-2019" />
       <div className="flex items-center justify-between mb-6">
         <TermSelector selectedTerm={selectedTerm} onTermChange={setSelectedTerm} />
         <button
@@ -47,6 +63,7 @@ export const TermPage = () => {
           selected={selected}
           toggleSelected={toggleSelected}
           onEdit={setEditingCourse}
+          user={user} // Pass user to CourseList
         />
       )}
       <CoursePlan
@@ -56,4 +73,4 @@ export const TermPage = () => {
       />
     </div>
   );
-};
+}

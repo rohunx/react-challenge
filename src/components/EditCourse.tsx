@@ -2,13 +2,15 @@ import { useState } from 'react';
 import type { Course } from '../types/course';
 import type { CourseFormData, CourseValidationError } from '../types/courseValidation';
 import { validateCourse } from '../utilities/courseValidator';
+import { saveCourseChanges } from '../services/courseService';
 
 interface EditCourseProps {
   course: Course;
   onCancel: () => void;
+  onSaveSuccess: () => void; // Add a callback for successful saves
 }
 
-export const EditCourse = ({ course, onCancel }: EditCourseProps) => {
+export const EditCourse = ({ course, onCancel, onSaveSuccess }: EditCourseProps) => {
   const [formData, setFormData] = useState<CourseFormData>({
     title: course.title,
     term: course.term,
@@ -17,9 +19,18 @@ export const EditCourse = ({ course, onCancel }: EditCourseProps) => {
   });
 
   const [errors, setErrors] = useState<CourseValidationError>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleChange = (field: keyof CourseFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const handleBlur = (field: keyof CourseFormData) => {
@@ -30,16 +41,28 @@ export const EditCourse = ({ course, onCancel }: EditCourseProps) => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const hasChanges = JSON.stringify(course) !== JSON.stringify(formData);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = validateCourse(formData);
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      // TODO: Submit form data
-      console.log('Form valid, submitting:', formData);
+      setIsSubmitting(true);
+      setSubmitError(null);
+      try {
+        await saveCourseChanges({ originalTerm: course.term, originalNumber: course.number }, formData);
+        onSaveSuccess(); // Call the success callback
+      } catch (error) {
+        setSubmitError(error instanceof Error ? error.message : 'Failed to save changes');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
+
+  const canSubmit = hasChanges;
 
   return (
     <div className="container mx-auto p-4">
@@ -57,6 +80,11 @@ export const EditCourse = ({ course, onCancel }: EditCourseProps) => {
         </h1>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+          {submitError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {submitError}
+            </div>
+          )}
           <div>
             <label htmlFor="title" className="block text-sm font-semibold text-gray-900 mb-2">
               Title
@@ -91,7 +119,6 @@ export const EditCourse = ({ course, onCancel }: EditCourseProps) => {
               <option value="Fall">Fall</option>
               <option value="Winter">Winter</option>
               <option value="Spring">Spring</option>
-              <option value="Summer">Summer</option>
             </select>
             {errors.term && <p className="text-red-600 text-sm mt-1">{errors.term}</p>}
           </div>
@@ -141,9 +168,10 @@ export const EditCourse = ({ course, onCancel }: EditCourseProps) => {
             </button>
             <button
               type="submit"
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+              disabled={isSubmitting || !canSubmit}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-colors"
             >
-              Save Changes
+              {isSubmitting ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </form>
