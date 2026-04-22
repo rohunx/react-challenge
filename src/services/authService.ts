@@ -6,10 +6,12 @@ import {
   signOut,
   type User,
 } from 'firebase/auth';
+import { getDatabase, ref, get } from 'firebase/database';
 import { app } from '../utilities/firebase';
 
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+const db = getDatabase(app);
 
 export const signInWithGoogle = async (): Promise<User> => {
   try {
@@ -32,4 +34,14 @@ export const signOutUser = async (): Promise<void> => {
 
 export const onAuthStateChange = (callback: (user: User | null) => void) => {
   return onAuthStateChanged(auth, callback);
+};
+
+export const isAdmin = async (uid: string): Promise<boolean> => {
+  try {
+    const snapshot = await get(ref(db, `admins/${uid}`));
+    return snapshot.exists() && snapshot.val() === true;
+  } catch (error) {
+    console.error('❌ Admin check error:', error);
+    return false;
+  }
 };

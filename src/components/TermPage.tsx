@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { User } from 'firebase/auth';
-import { AuthBanner } from './AuthBanner'; // Changed from Banner
+import { AuthBanner } from './AuthBanner';
 import { CourseList } from './CourseList';
 import { CoursePlan } from './CoursePlan';
 import { EditCourse } from './EditCourse';
@@ -10,9 +10,10 @@ import type { Course } from '../types/course';
 
 interface TermPageProps {
   user: User | null;
+  isAdmin: boolean;
 }
 
-export const TermPage = ({ user }: TermPageProps) => {
+export const TermPage = ({ user, isAdmin }: TermPageProps) => {
   const [selectedTerm, setSelectedTerm] = useState('Fall');
   const [selected, setSelected] = useState<Course[]>([]);
   const [isCoursePlanOpen, setIsCoursePlanOpen] = useState(false);
@@ -63,7 +64,8 @@ export const TermPage = ({ user }: TermPageProps) => {
           selected={selected}
           toggleSelected={toggleSelected}
           onEdit={setEditingCourse}
-          user={user} // Pass user to CourseList
+          user={user}
+          isAdmin={isAdmin}
         />
       )}
       <CoursePlan
@@ -73,4 +75,4 @@ export const TermPage = ({ user }: TermPageProps) => {
       />
     </div>
   );
-}
+};

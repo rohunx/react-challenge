@@ -11,6 +11,7 @@ interface CourseListProps {
   toggleSelected: (course: Course) => void;
   onEdit: (course: Course) => void;
   user: User | null;
+  isAdmin: boolean;
 }
 
 export const CourseList = ({
@@ -20,6 +21,7 @@ export const CourseList = ({
   toggleSelected,
   onEdit,
   user,
+  isAdmin,
 }: CourseListProps) => {
   const termCourses = useMemo(
     () => Object.values(courses).filter((course) => course.term === selectedTerm),
@@ -44,6 +46,7 @@ export const CourseList = ({
             onToggleSelect={toggleSelected}
             onEdit={onEdit}
             user={user}
+            isAdmin={isAdmin}
           />
         );
       })}

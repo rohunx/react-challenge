@@ -8,6 +8,7 @@ interface CourseCardProps {
   onToggleSelect: (course: Course) => void;
   onEdit: (course: Course) => void;
   user: User | null;
+  isAdmin: boolean;
 }
 
 export const CourseCard = ({
@@ -17,6 +18,7 @@ export const CourseCard = ({
   onToggleSelect,
   onEdit,
   user,
+  isAdmin,
 }: CourseCardProps) => {
   const cardClasses = `
     border rounded-xl p-4 shadow-sm flex flex-col justify-between min-h-[160px] transition-colors
@@ -49,7 +51,7 @@ export const CourseCard = ({
           )}
         </div>
 
-        {user && (
+        {user && isAdmin && (
           <button
             onClick={() => onEdit(course)}
             className="mt-3 w-full text-xs text-blue-600 hover:text-blue-700 font-semibold transition-colors text-left"
